@@ -8,7 +8,7 @@ void SnackUndoMessage(context, String description, Function onUndoPressed) {
 
   Widget message = RichText(
     text: TextSpan(
-      text: 'A tarefa ',
+      text: 'Tarefa ',
       style: TextStyle(color: Colors.white),
       children: <TextSpan>[
         TextSpan(
@@ -30,5 +30,6 @@ void SnackMessage(context, Widget content,
       backgroundColor: Colors.deepPurple,
       action: barAction);
 
+  Scaffold.of(context).removeCurrentSnackBar();
   Scaffold.of(context).showSnackBar(snack);
 }

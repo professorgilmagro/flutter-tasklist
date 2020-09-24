@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:task_app/models/task.dart';
 
-Widget TaskListView(
-    List<Task> tasks, Function onCheckboxChanged, Function onRemoveItem) {
+Widget TaskListView(List<Task> tasks, Function onCheckboxChanged,
+    Function onRemoveItem, Function onRefreshItems) {
   return Expanded(
-    child: Card(
-      color: tasks.isEmpty ? Colors.purple : Colors.white,
-      elevation: 0.1,
-      margin: EdgeInsets.only(top: 10),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
+    child: RefreshIndicator(
+      onRefresh: onRefreshItems,
+      child: Card(
+        color: tasks.isEmpty ? Colors.purple : Colors.white,
+        elevation: 0.1,
+        margin: EdgeInsets.only(top: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        child: TaskContentView(tasks, onCheckboxChanged, onRemoveItem),
       ),
-      child: TaskContentView(tasks, onCheckboxChanged, onRemoveItem),
     ),
   );
 }
@@ -80,7 +83,12 @@ Widget TaskListItem(context, int index, Task task,
     ),
     direction: DismissDirection.startToEnd,
     child: CheckboxListTile(
-      title: Text(task.description, style: GoogleFonts.pompiere(fontSize: 26)),
+      title: Text(task.description,
+          style: GoogleFonts.pompiere(
+            fontSize: 26,
+            color: Colors.purple,
+            decoration: task.done ? TextDecoration.lineThrough : null,
+          )),
       value: task.done,
       checkColor: Colors.white,
       secondary: CircleAvatar(

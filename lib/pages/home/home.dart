@@ -40,14 +40,33 @@ class _HomeState extends State<Home> {
   void _onRemoveItem(index, task, context) {
     _removed["index"] = index;
     _removed["task"] = task;
-    _tasks.removeAt(index);
-    save();
+
+    setState(() {
+      _tasks.removeAt(index);
+      save();
+    });
+    
     SnackUndoMessage(context, task.description, _undoDelete);
   }
 
   void _undoDelete() {
     setState(() {
       _tasks.insert(_removed['index'], _removed['task']);
+      save();
+    });
+  }
+
+  Future<Null> _onRefreshList() async {
+    await Future.delayed(Duration(seconds: 1));
+    setState(() {
+      _tasks.sort((a, b) {
+        if (a.done && !b.done) {
+          return 1;
+        }
+
+        return (!a.done && b.done) ? -1 : 0;
+      });
+
       save();
     });
   }
@@ -81,7 +100,7 @@ class _HomeState extends State<Home> {
           child: Column(
             children: <Widget>[
               AddTaskRow(_addTaskAction, taskFieldControl),
-              TaskListView(_tasks, _onTaskCheck, _onRemoveItem),
+              TaskListView(_tasks, _onTaskCheck, _onRemoveItem, _onRefreshList),
             ],
           ),
         ));
