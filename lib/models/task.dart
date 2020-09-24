@@ -30,14 +30,11 @@ class Task {
   Future<List<Task>> fetchListFromStorage() async {
     List<Task> tasks = [];
 
-    Map<String, dynamic> data = await getStorage().getData();
-
-    data.forEach((key, item) {
+    String data = await getStorage().getData();
+    List<dynamic> jsonContent = json.decode(data);
+    jsonContent.forEach((item) {
       tasks.add(Task.fromJson(item));
     });
-
-    print('oi');
-    print(data);
 
     return tasks;
   }

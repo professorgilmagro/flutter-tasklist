@@ -1,62 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:task_app/models/task.dart';
 import 'package:task_app/pages/home/components/add_area.dart';
 import 'package:task_app/pages/home/components/list_area.dart';
+import 'package:task_app/pages/home/components/snack.dart';
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
+class _HomeState extends State<Home> {
   TextEditingController taskFieldControl = TextEditingController();
   List<Task> _tasks = [];
+  Map<String, dynamic> _removed = Map();
+
+  void save() => Task().saveTasks(_tasks);
 
   void _addTaskAction() {
+    if (taskFieldControl.text.isEmpty) {
+      return;
+    }
+
     Task task = Task(description: taskFieldControl.text, done: false);
     setState(() {
       _tasks.add(task);
       taskFieldControl.text = "";
-      task.saveTasks(_tasks);
+      save();
     });
   }
 
-  void _onTaskCheck(bool value) {
+  void _onTaskCheck(int index, bool value) {
     setState(() {
-      _tasks[0].done = value;
-      Task().saveTasks(_tasks);
+      _tasks[index].done = value;
+      save();
+    });
+  }
+
+  void _onRemoveItem(index, task, context) {
+    _removed["index"] = index;
+    _removed["task"] = task;
+    _tasks.removeAt(index);
+    save();
+    SnackUndoMessage(context, task.description, _undoDelete);
+  }
+
+  void _undoDelete() {
+    setState(() {
+      _tasks.insert(_removed['index'], _removed['task']);
+      save();
     });
   }
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
-    Task().fetchListFromStorage().then((tasks) => this._tasks = tasks);
-  }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    Task().fetchListFromStorage().then((tasks) {
+      _tasks = tasks;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Lista de Tarefas", style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-        shadowColor: Colors.black,
-      ),
-      body: Column(
-        children: <Widget>[
-          AddTaskRow(_addTaskAction, taskFieldControl),
-          TaskListView(_tasks, _onTaskCheck),
-        ],
-      ),
-    );
+        appBar: AppBar(
+          title: Text(
+            "Lista de Tarefas",
+            style: GoogleFonts.poiretOne(
+              textStyle: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+          ),
+          centerTitle: true,
+          elevation: 0.0,
+          toolbarHeight: 80,
+        ),
+        body: Container(
+          color: Colors.purple,
+          padding: EdgeInsets.all(10),
+          child: Column(
+            children: <Widget>[
+              AddTaskRow(_addTaskAction, taskFieldControl),
+              TaskListView(_tasks, _onTaskCheck, _onRemoveItem),
+            ],
+          ),
+        ));
   }
 }

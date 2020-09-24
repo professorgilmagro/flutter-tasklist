@@ -1,20 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 Widget AddTaskRow(Function addAction, TextEditingController textController) {
-  return Container(
-    padding: EdgeInsets.fromLTRB(17, 1, 7, 1),
+  return Padding(
+    padding: EdgeInsets.all(6),
     child: Row(
       children: <Widget>[
         Expanded(
           child: TextField(
             controller: textController,
-            decoration: InputDecoration(labelText: "Nova tarefa"),
+            style: GoogleFonts.adventPro(
+              textStyle: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            decoration: InputDecoration(
+              labelText: "Nova tarefa",
+              labelStyle: GoogleFonts.adventPro(
+                textStyle: TextStyle(fontSize: 20, color: Colors.white70),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white70),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+            ),
           ),
         ),
-        RaisedButton(
+        FloatingActionButton(
+          elevation: 0,
           onPressed: addAction,
-          color: Colors.blue,
-          child: Text('Criar', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.purple[600],
+          mini: false,
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
         )
       ],
     ),
