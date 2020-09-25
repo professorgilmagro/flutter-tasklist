@@ -19,7 +19,7 @@ class Loading {
   List<Widget> getContent() {
     List<Widget> items = [];
     items.add(indicator ?? _getDefaultIndicator());
-    if (text.isNotEmpty) {
+    if (text != null && text.isNotEmpty) {
       items.add(_getTextContent());
     }
 

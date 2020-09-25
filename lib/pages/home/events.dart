@@ -59,4 +59,15 @@ class HomeEvents {
       save();
     });
   }
+
+  void loadData({Function onDone}) {
+    Task.fetchFromStorage().then((items) {
+      state.setState(() {
+        this.tasks = items;
+        if (onDone != null) {
+          return onDone();
+        }
+      });
+    });
+  }
 }
