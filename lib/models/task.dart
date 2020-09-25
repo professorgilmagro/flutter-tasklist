@@ -39,7 +39,7 @@ class Task {
     return tasks;
   }
 
-  void saveTasks(List<Task> tasks) async {
+  void saveAll(List<Task> tasks) async {
     String jsonData = json.encode(tasks);
     await getStorage().save(jsonData);
   }
