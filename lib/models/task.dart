@@ -27,10 +27,10 @@ class Task {
     return {'description': description, 'done': done ? 1 : 0};
   }
 
-  Future<List<Task>> fetchListFromStorage() async {
+  static Future<List<Task>> fetchFromStorage() async {
     List<Task> tasks = [];
 
-    String data = await getStorage().getData();
+    String data = await Task().getStorage().getData();
     List<dynamic> jsonContent = json.decode(data);
     jsonContent.forEach((item) {
       tasks.add(Task.fromJson(item));
@@ -42,5 +42,15 @@ class Task {
   static void saveAll(List<Task> tasks) async {
     String jsonData = json.encode(tasks);
     await Task().getStorage().save(jsonData);
+  }
+
+  static void sortList(List<Task> tasks) {
+    tasks.sort((a, b) {
+      if (a.done && !b.done) {
+        return 1;
+      }
+
+      return (!a.done && b.done) ? -1 : 0;
+    });
   }
 }

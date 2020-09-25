@@ -59,14 +59,7 @@ class _HomeState extends State<Home> {
   Future<Null> _onRefreshList() async {
     await Future.delayed(Duration(seconds: 1));
     setState(() {
-      _tasks.sort((a, b) {
-        if (a.done && !b.done) {
-          return 1;
-        }
-
-        return (!a.done && b.done) ? -1 : 0;
-      });
-
+      Task.sortList(_tasks);
       save();
     });
   }
@@ -75,7 +68,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
 
-    Task().fetchListFromStorage().then((tasks) {
+    Task.fetchFromStorage().then((tasks) {
       setState(() {
         _tasks = tasks;
       });
