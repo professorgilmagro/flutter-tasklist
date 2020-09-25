@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:task_app/models/task.dart';
-import 'package:task_app/pages/home/components/add_area.dart';
-import 'package:task_app/pages/home/components/list_area.dart';
+import 'package:task_app/pages/home/components/add.dart';
+import 'package:task_app/pages/home/components/list.dart';
 import 'package:task_app/pages/home/components/snack.dart';
 
 class Home extends StatefulWidget {
@@ -45,8 +45,8 @@ class _HomeState extends State<Home> {
       _tasks.removeAt(index);
       save();
     });
-    
-    SnackUndoMessage(context, task.description, _undoDelete);
+
+    SnackMessage(context, task.description).showUndoMessage(_undoDelete);
   }
 
   void _undoDelete() {
@@ -76,7 +76,9 @@ class _HomeState extends State<Home> {
     super.initState();
 
     Task().fetchListFromStorage().then((tasks) {
-      _tasks = tasks;
+      setState(() {
+        _tasks = tasks;
+      });
     });
   }
 
@@ -99,8 +101,15 @@ class _HomeState extends State<Home> {
           padding: EdgeInsets.all(10),
           child: Column(
             children: <Widget>[
-              AddTaskRow(_addTaskAction, taskFieldControl),
-              TaskListView(_tasks, _onTaskCheck, _onRemoveItem, _onRefreshList),
+              AddTask.build(
+                addAction: _addTaskAction,
+                textController: taskFieldControl,
+              ),
+              TaskListView.build(
+                  items: _tasks,
+                  onCheckboxChanged: _onTaskCheck,
+                  onRemoveItem: _onRemoveItem,
+                  onRefreshItems: _onRefreshList),
             ],
           ),
         ));
