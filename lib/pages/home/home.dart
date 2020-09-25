@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:task_app/models/task.dart';
 import 'package:task_app/pages/home/components/add.dart';
 import 'package:task_app/pages/home/components/list.dart';
+import 'package:task_app/pages/home/components/loading.dart';
 import 'package:task_app/pages/home/components/snack.dart';
+import 'package:task_app/pages/home/events.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -11,72 +13,17 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  TextEditingController taskFieldControl = TextEditingController();
-  List<Task> _tasks = [];
-  Map<String, dynamic> _removed = Map();
-
-  void save() => Task.saveAll(_tasks);
-
-  void _addTaskAction() {
-    if (taskFieldControl.text.isEmpty) {
-      return;
-    }
-
-    Task task = Task(description: taskFieldControl.text, done: false);
-    setState(() {
-      _tasks.add(task);
-      taskFieldControl.text = "";
-      save();
-    });
-  }
-
-  void _onTaskCheck(int index, bool value) {
-    setState(() {
-      _tasks[index].done = value;
-      save();
-    });
-  }
-
-  void _onRemoveItem(index, task, context) {
-    _removed["index"] = index;
-    _removed["task"] = task;
-
-    setState(() {
-      _tasks.removeAt(index);
-      save();
-    });
-
-    SnackMessage(context, task.description).showUndoMessage(_undoDelete);
-  }
-
-  void _undoDelete() {
-    setState(() {
-      _tasks.insert(_removed['index'], _removed['task']);
-      save();
-    });
-  }
-
-  Future<Null> _onRefreshList() async {
-    await Future.delayed(Duration(seconds: 1));
-    setState(() {
-      Task.sortList(_tasks);
-      save();
-    });
-  }
+  HomeEvents homeEvents;
 
   @override
   void initState() {
     super.initState();
-
-    Task.fetchFromStorage().then((tasks) {
-      setState(() {
-        _tasks = tasks;
-      });
-    });
+    this.homeEvents = HomeEvents(this);
   }
 
   @override
   Widget build(BuildContext context) {
+    List loadingStates = [ConnectionState.none, ConnectionState.waiting];
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -89,22 +36,39 @@ class _HomeState extends State<Home> {
           elevation: 0.0,
           toolbarHeight: 80,
         ),
-        body: Container(
-          color: Colors.purple,
-          padding: EdgeInsets.all(10),
-          child: Column(
-            children: <Widget>[
-              AddTask.build(
-                addAction: _addTaskAction,
-                textController: taskFieldControl,
+        body: FutureBuilder<List>(
+          future: Task.fetchFromStorage(),
+          builder: (context, snapshot) {
+            if (loadingStates.contains(snapshot.connectionState)) {
+              return Loading(text: 'Carregando...').build();
+            }
+
+            if (snapshot.hasError) {
+              String message = "Erro na obtenção dos dados!";
+              SnackMessage(context, message).show();
+              return Container();
+            }
+
+            homeEvents.tasks = snapshot.data;
+            return Container(
+              color: Colors.purple,
+              padding: EdgeInsets.all(10),
+              child: Column(
+                children: <Widget>[
+                  AddTask.build(
+                    addAction: homeEvents.addTaskAction,
+                    textController: homeEvents.textController,
+                  ),
+                  TaskListView.build(
+                    items: homeEvents.tasks,
+                    onCheckboxChanged: homeEvents.onTaskCheck,
+                    onRemoveItem: homeEvents.onRemoveItem,
+                    onRefreshItems: homeEvents.onRefreshList,
+                  ),
+                ],
               ),
-              TaskListView.build(
-                  items: _tasks,
-                  onCheckboxChanged: _onTaskCheck,
-                  onRemoveItem: _onRemoveItem,
-                  onRefreshItems: _onRefreshList),
-            ],
-          ),
+            );
+          },
         ));
   }
 }
