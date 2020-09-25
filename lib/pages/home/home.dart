@@ -18,7 +18,6 @@ class _HomeState extends State<Home> {
   void save() => Task.saveAll(_tasks);
 
   void _addTaskAction() {
-    print(taskFieldControl.text);
     if (taskFieldControl.text.isEmpty) {
       return;
     }
