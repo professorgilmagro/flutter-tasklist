@@ -5,7 +5,7 @@ class AddTask {
   Function addAction;
   TextEditingController textController;
 
-  AddTask({@required this.addAction, @required textController});
+  AddTask({@required this.addAction, @required this.textController});
 
   static Widget build({@required addAction, textController}) {
     return AddTask(addAction: addAction, textController: textController).view();

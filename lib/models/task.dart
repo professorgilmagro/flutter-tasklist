@@ -39,8 +39,8 @@ class Task {
     return tasks;
   }
 
-  void saveAll(List<Task> tasks) async {
+  static void saveAll(List<Task> tasks) async {
     String jsonData = json.encode(tasks);
-    await getStorage().save(jsonData);
+    await Task().getStorage().save(jsonData);
   }
 }

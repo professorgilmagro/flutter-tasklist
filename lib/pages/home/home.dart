@@ -15,9 +15,10 @@ class _HomeState extends State<Home> {
   List<Task> _tasks = [];
   Map<String, dynamic> _removed = Map();
 
-  void save() => Task().saveAll(_tasks);
+  void save() => Task.saveAll(_tasks);
 
   void _addTaskAction() {
+    print(taskFieldControl.text);
     if (taskFieldControl.text.isEmpty) {
       return;
     }
